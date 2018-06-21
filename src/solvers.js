@@ -47,17 +47,18 @@ window.countNRooksSolutions = function(n) {
   var rows = board.rows();
   // Create recursive function to identify solution count
   var rookSolutions = function(rowIndex) {
-    // If the toggle count equals the number of rows, consider a solution found and break out of function call
-    if (toggleCounter === n) {
-      solutionCount++;
-      return;
-    }
-    // Otherwise, as long as the passed in row is less than the board length, loop over row elements
+    
+    
+    // As long as the passed in row is less than the board length, loop over row elements
     if (rowIndex < rows.length) {
       for (var i = 0; i < rows.length; i++) {
         // Toggle current element, increase toggle counter
         board.togglePiece(rowIndex, i);
         toggleCounter++;
+        if (board.hasRowConflictAt(rowIndex)) {
+          board.togglePiece(rowIndex, i - 1);
+          toggleCounter--;
+        }
         // If the current element has a conflict, toggle element 'off' and decrease toggle counter
         if (board.hasColConflictAt(i)) {
           board.togglePiece(rowIndex, i);
@@ -65,11 +66,25 @@ window.countNRooksSolutions = function(n) {
         } else {
           // If the current element does NOT have a conflict, recursively call rookSolutions, passing in the 
           // next row.
+          // If the toggle count equals the number of rows, consider a solution found and break out of function call
+          if (toggleCounter === n) {
+            solutionCount++;
+            // board = new Board({'n': n});
+            // rows = board.rows();
+            // toggleCounter = 0;
+            board.togglePiece(rowIndex, i);
+            toggleCounter--;
+            return;
+          }
           rookSolutions(rowIndex + 1);
         }
       }
       // 
-      rookSolutions(rowIndex + 1);
+      // rookSolutions(rowIndex + 1);
+    }
+    if (rows[rowIndex][n - 1] === 1) {
+      board.togglePiece(rowIndex, n - 1);
+      toggleCounter--;
     }
 
   }
